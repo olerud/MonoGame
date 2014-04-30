@@ -126,8 +126,9 @@ namespace Microsoft.Xna.Framework.Graphics
             if (gdi.PresentationParameters == null)
                 throw new ArgumentNullException("presentationParameters");
             PresentationParameters = gdi.PresentationParameters;
+            Setup();
             GraphicsProfile = gdi.GraphicsProfile;
-            SetupGL();
+            Setup();
             Initialize();
         }
 
@@ -135,7 +136,7 @@ namespace Microsoft.Xna.Framework.Graphics
 		{
             PresentationParameters = new PresentationParameters();
             PresentationParameters.DepthStencilFormat = DepthFormat.Depth24;
-            SetupGL();
+            Setup();
             Initialize();
         }
 
@@ -154,15 +155,16 @@ namespace Microsoft.Xna.Framework.Graphics
             if (presentationParameters == null)
                 throw new ArgumentNullException("presentationParameters");
             PresentationParameters = presentationParameters;
+            Setup();
             GraphicsProfile = graphicsProfile;
-            SetupGL();
+            Setup();
             Initialize();
         }
 
-        private void SetupGL() 
+        private void Setup() 
         {
 #if WINDOWS && OPENGL
-            ((OpenTKGameWindow)Game.Instance.Window).Initialize(PresentationParameters);
+            //((OpenTKGameWindow)Game.Instance.Window).Initialize(PresentationParameters);
 #endif
 
 			// Initialize the main viewport
