@@ -143,9 +143,12 @@ namespace Microsoft.Xna.Framework.Input
 #if (WINDOWS && OPENGL)
             var p = new POINT();
             GetCursorPos(out p);
-            var pc = Window.PointToClient(p.ToPoint());
-            window.MouseState.X = pc.X;
-            window.MouseState.Y = pc.Y;
+            if (Window.Exists)
+            {
+                var pc = Window.PointToClient(p.ToPoint());
+                window.MouseState.X = pc.X;
+                window.MouseState.Y = pc.Y;
+            }
 #endif
 
             window.MouseState.LeftButton = _mouse[OpenTK.Input.MouseButton.Left] ? ButtonState.Pressed : ButtonState.Released;
