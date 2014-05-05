@@ -280,8 +280,8 @@ namespace Microsoft.Xna.Framework.Graphics
             {
 				byte[] imageInfo = GetTextureData(0);
 
-                int rWidth = r.Width;
-                int rHeight = r.Height;
+                int rWidth = r.Right; // r.Width;
+                int rHeight = r.Bottom; // r.Height;
                 
                 // Loop through and extract the data but we need to load it 
                 var dataRowColOffset = 0;
