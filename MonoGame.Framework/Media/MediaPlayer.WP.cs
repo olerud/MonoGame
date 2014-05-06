@@ -32,7 +32,7 @@ namespace Microsoft.Xna.Framework.Media
                         if (_mediaElement.Source == null && source != null)
                         {
                             _mediaElement.AutoPlay = false;
-                            Deployment.Current.Dispatcher.BeginInvoke(() => _mediaElement.Source = source);
+                            Threading.BlockOnUIThread(() => _mediaElement.Source = source);
                         }
 
                         // Ensure only one subscription
@@ -57,7 +57,7 @@ namespace Microsoft.Xna.Framework.Media
         private static void MediaElement_MediaOpened(object sender, RoutedEventArgs e)
         {
             if (elapsedTime != TimeSpan.Zero)
-                Deployment.Current.Dispatcher.BeginInvoke(() =>
+                Threading.BlockOnUIThread(() =>
                 {
                     _mediaElement.Position = elapsedTime;
                     elapsedTime = TimeSpan.Zero;
@@ -80,7 +80,7 @@ namespace Microsoft.Xna.Framework.Media
 
         private static void PlatformSetIsMuted()
         {
-            Deployment.Current.Dispatcher.BeginInvoke(() =>
+            Threading.BlockOnUIThread(() =>
             {
                 _mediaElement.IsMuted = _isMuted;
             });
@@ -89,17 +89,14 @@ namespace Microsoft.Xna.Framework.Media
         private static TimeSpan PlatformGetPlayPosition()
         {
             TimeSpan pos = TimeSpan.Zero;
-            EventWaitHandle Wait = new AutoResetEvent(false);
             if(_mediaElement.Dispatcher.CheckAccess()) {
                 pos = _mediaElement.Position;
             }
             else {
-                Deployment.Current.Dispatcher.BeginInvoke(() =>
+                Threading.BlockOnUIThread(() =>
                 {
                     pos = _mediaElement.Position;
-                    Wait.Set();
                 });
-                Wait.WaitOne();
             }
             return (pos);
         }
@@ -111,7 +108,7 @@ namespace Microsoft.Xna.Framework.Media
 
         private static void PlatformSetVolume()
         {
-                Deployment.Current.Dispatcher.BeginInvoke(() =>
+                Threading.BlockOnUIThread(() =>
                 {
                     _mediaElement.Volume = _volume;
                 });
@@ -121,7 +118,7 @@ namespace Microsoft.Xna.Framework.Media
 
         private static void PlatformPause()
         {
-            Deployment.Current.Dispatcher.BeginInvoke(() =>
+            Threading.BlockOnUIThread(() =>
             {
                 _mediaElement.Pause();
             });
@@ -129,7 +126,7 @@ namespace Microsoft.Xna.Framework.Media
 
         private static void PlatformPlaySong(Song song)
         {
-            Deployment.Current.Dispatcher.BeginInvoke(() =>
+            Threading.BlockOnUIThread(() =>
             {
                 _mediaElement.Source = new Uri(song.FilePath, UriKind.Relative);
                 _mediaElement.Play();
@@ -142,7 +139,7 @@ namespace Microsoft.Xna.Framework.Media
 
         private static void PlatformResume()
         {
-            Deployment.Current.Dispatcher.BeginInvoke(() =>
+            Threading.BlockOnUIThread(() =>
             {
                 _mediaElement.Play();
             });
@@ -150,7 +147,7 @@ namespace Microsoft.Xna.Framework.Media
 
         private static void PlatformStop()
         {
-            Deployment.Current.Dispatcher.BeginInvoke(() =>
+            Threading.BlockOnUIThread(() =>
             {
                 _mediaElement.Stop();
             });

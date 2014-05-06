@@ -174,7 +174,7 @@ namespace Microsoft.Xna.Framework.Media
 #if WINDOWS_PHONE
             if (IsRepeating)
             {
-                System.Windows.Deployment.Current.Dispatcher.BeginInvoke(() =>
+                Threading.BlockOnUIThread(() =>
                 {
                     _mediaElement.Position = TimeSpan.Zero;
                     _mediaElement.Play();
