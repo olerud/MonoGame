@@ -29,7 +29,7 @@ using GetPName = OpenTK.Graphics.ES20.All;
 
 namespace Microsoft.Xna.Framework.Graphics
 {
-    static class GraphicsExtensions
+    public static class GraphicsExtensions
     {
 #if OPENGL
         public static All OpenGL11(CullMode cull)
