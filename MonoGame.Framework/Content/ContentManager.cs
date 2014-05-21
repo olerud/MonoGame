@@ -373,6 +373,10 @@ namespace Microsoft.Xna.Framework.Content
             {
                 return SoundEffectReader.Normalize(assetName);
             }
+            else if ((typeof(T) == typeof(Video)))
+            {
+                return Video.Normalize(assetName);
+            }
 #endif
             else if ((typeof(T) == typeof(Effect)))
             {
@@ -412,14 +416,30 @@ namespace Microsoft.Xna.Framework.Content
                     return SoundEffect.FromStream(s);
 #endif
             }
+            else if ((typeof(T) == typeof(Video)))
+            {
+                return new Video(assetName);
+            }
 #endif
             else if ((typeof(T) == typeof(Effect)))
             {
                 using (Stream assetStream = TitleContainer.OpenStream(assetName))
                 {
-                    var data = new byte[assetStream.Length];
-                    assetStream.Read(data, 0, (int)assetStream.Length);
-                    return new Effect(this.graphicsDeviceService.GraphicsDevice, data);
+#if ANDROID
+					using (MemoryStream memStream = new MemoryStream())
+					{
+						assetStream.CopyTo(memStream);
+						memStream.Seek(0, SeekOrigin.Begin);
+
+						var data = new byte[memStream.Length];
+						memStream.Read(data, 0, (int)memStream.Length);
+						return new Effect(this.graphicsDeviceService.GraphicsDevice, data);
+					}
+#else
+					var data = new byte[assetStream.Length];
+					assetStream.Read(data, 0, (int)assetStream.Length);
+					return new Effect(this.graphicsDeviceService.GraphicsDevice, data);
+#endif
                 }
             }
             return null;
