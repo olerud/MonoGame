@@ -429,7 +429,6 @@ namespace Microsoft.Xna.Framework.Content
 					using (MemoryStream memStream = new MemoryStream())
 					{
 						assetStream.CopyTo(memStream);
-						memStream.Seek(0, SeekOrigin.Begin);
                         var data = memStream.ToArray();
 						return new Effect(this.graphicsDeviceService.GraphicsDevice, data);
 					}
