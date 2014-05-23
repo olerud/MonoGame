@@ -334,9 +334,10 @@ namespace Microsoft.Xna.Framework.Graphics
                     firstGlyphOfLine = true;
                     continue;
                 }
+                float gw = currentGlyph.Width;
 
                 if (hasCurrentGlyph) {
-                    offset.X += Spacing + currentGlyph.Width + currentGlyph.RightSideBearing;
+                    offset.X += Spacing + gw + currentGlyph.RightSideBearing;
                 }
 
                 hasCurrentGlyph = _glyphs.TryGetValue(c, out currentGlyph);
@@ -347,6 +348,7 @@ namespace Microsoft.Xna.Framework.Graphics
 
                     currentGlyph = defaultGlyph.Value;
                     hasCurrentGlyph = true;
+                    gw = currentGlyph.Width;
                 }
 
                 if (hasCurrentGlyph) {
@@ -362,20 +364,21 @@ namespace Microsoft.Xna.Framework.Graphics
                 }
 
                 var p = offset;
-
-				if (flippedHorz)
-                    p.X += currentGlyph.BoundsInTexture.Width;
+                int bitw = currentGlyph.BoundsInTexture.Width;
+                int bith = currentGlyph.BoundsInTexture.Height;
+                if (flippedHorz)
+                    p.X += bitw;
                 p.X += currentGlyph.Cropping.X;
 
 				if (flippedVert)
-                    p.Y += currentGlyph.BoundsInTexture.Height - LineSpacing;
+                    p.Y += bith - LineSpacing;
                 p.Y += currentGlyph.Cropping.Y;
 
 				Vector2.Transform(ref p, ref transformation, out p);
 
                 var destRect = new Vector4( p.X, p.Y, 
-                                            currentGlyph.BoundsInTexture.Width * scale.X,
-                                            currentGlyph.BoundsInTexture.Height * scale.Y);
+                                            bitw * scale.X,
+                                            bith * scale.Y);
 
 				spriteBatch.DrawInternal(
                     _texture, destRect, currentGlyph.BoundsInTexture,

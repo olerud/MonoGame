@@ -18,6 +18,8 @@ namespace Microsoft.Xna.Framework.Graphics
 
 		internal int width;
 		internal int height;
+        internal float fwidth;
+        internal float fheight;
 
         public Rectangle Bounds
         {
@@ -50,6 +52,8 @@ namespace Microsoft.Xna.Framework.Graphics
             this.GraphicsDevice = graphicsDevice;
             this.width = width;
             this.height = height;
+            this.fwidth = (float)width;
+            this.fheight = (float)height;
             this._format = format;
             this._levelCount = mipmap ? CalculateMipLevels(width, height) : 1;
 
@@ -58,6 +62,22 @@ namespace Microsoft.Xna.Framework.Graphics
 		        return;
 
             PlatformConstruct(width, height, mipmap, format, type, shared);
+        }
+
+        public float fWidth
+        {
+            get
+            {
+                return fwidth;
+            }
+        }
+
+        public float fHeight
+        {
+            get
+            {
+                return fheight;
+            }
         }
 
         public int Width

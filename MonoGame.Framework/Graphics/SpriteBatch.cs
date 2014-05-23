@@ -342,10 +342,10 @@ namespace Microsoft.Xna.Framework.Graphics
 				_tempRect.Height = texture.Height;				
 			}
 			
-			_texCoordTL.X = _tempRect.X / (float)texture.Width;
-			_texCoordTL.Y = _tempRect.Y / (float)texture.Height;
-			_texCoordBR.X = (_tempRect.X + _tempRect.Width) / (float)texture.Width;
-			_texCoordBR.Y = (_tempRect.Y + _tempRect.Height) / (float)texture.Height;
+			_texCoordTL.X = _tempRect.X / texture.fWidth;
+			_texCoordTL.Y = _tempRect.Y / texture.fHeight;
+			_texCoordBR.X = (_tempRect.X + _tempRect.Width) / texture.fWidth;
+			_texCoordBR.Y = (_tempRect.Y + _tempRect.Height) / texture.fHeight;
 
 			if ((effect & SpriteEffects.FlipVertically) != 0) {
                 var temp = _texCoordBR.Y;
