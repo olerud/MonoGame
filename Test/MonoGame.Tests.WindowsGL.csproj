@@ -76,6 +76,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Framework\Audio\AudioTestFixtureBase.cs" />
+    <Compile Include="Framework\Audio\AudioTestGame.cs" />
+    <Compile Include="Framework\Audio\DynamicEffectInstanceTest.cs" />
+    <Compile Include="Framework\Audio\OpenALAudioTest.cs" />
     <Compile Include="Framework\ColorTest.cs" />
     <Compile Include="Framework\Components\DrawFrameNumberComponent.cs" />
     <Compile Include="Framework\Components\FlexibleGameComponent.cs" />

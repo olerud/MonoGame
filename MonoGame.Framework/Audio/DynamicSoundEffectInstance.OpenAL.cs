@@ -42,6 +42,10 @@ namespace Microsoft.Xna.Framework.Audio {
         /// <param name="rate">The sampling rate of the sound effect, e.g. 44 khz, 22 khz.</param>
         private void QueueDataBuffer (byte [] data, ALFormat format, int offset, int size, int rate)
         {
+            if (controller == null)
+            {
+                InitializeSound();
+            }
             byte[] dataSubset = new byte[size];
             Array.Copy(data, offset, dataSubset, 0, size);
 
