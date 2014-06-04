@@ -16,16 +16,30 @@ using OpenTK.Audio.OpenAL;
 
 namespace Microsoft.Xna.Framework.Audio
 {
-    public sealed partial class SoundEffectInstance : IDisposable
+    public partial class SoundEffectInstance : IDisposable
     {
-		private SoundState soundState = SoundState.Stopped;
+		private SoundState _soundState = SoundState.Stopped;
+		protected SoundState soundState {
+			get
+			{
+				lock(this) {
+					return(_soundState);
+				}
+			}
+			set
+			{
+				lock(this) {
+					_soundState = value;
+				}
+			}
+		}
 		private bool _looped = false;
 		int sourceId;
 
 #if OPENAL
 
         private OALSoundBuffer soundBuffer;
-        private OpenALSoundController controller;
+        internal OpenALSoundController controller;
 
         
         bool hasSourceId = false;
@@ -211,6 +225,29 @@ namespace Microsoft.Xna.Framework.Audio
             
         }
 
+
+        private void ApplyState()
+        {
+            if (!hasSourceId)
+                return;
+            ApplyState(sourceId);
+        }
+
+
+        protected void ApplyState(int sourceId)
+        {
+            // Distance Model
+            AL.DistanceModel(ALDistanceModel.InverseDistanceClamped);
+            // Pan
+            AL.Source(sourceId, ALSource3f.Position, _pan, 0, 0.1f);
+            // Volume
+            AL.Source(sourceId, ALSourcef.Gain, _volume * SoundEffect.MasterVolume);
+            // Looping
+            AL.Source(sourceId, ALSourceb.Looping, IsLooped);
+            // Pitch
+            AL.Source(sourceId, ALSourcef.Pitch, XnaPitchToAlPitch(_pitch));
+        }
+
         private void PlatformPlay()
         {
 #if OPENAL
@@ -226,19 +263,7 @@ namespace Microsoft.Xna.Framework.Audio
             AL.Source(soundBuffer.SourceId, ALSourcei.Buffer, bufferId);
 
             // Send the position, gain, looping, pitch, and distance model to the OpenAL driver.
-            if (!hasSourceId)
-				return;
-
-			// Distance Model
-			AL.DistanceModel (ALDistanceModel.InverseDistanceClamped);
-			// Pan
-			AL.Source (sourceId, ALSource3f.Position, _pan, 0, 0.1f);
-			// Volume
-			AL.Source (sourceId, ALSourcef.Gain, _volume * SoundEffect.MasterVolume);
-			// Looping
-			AL.Source (sourceId, ALSourceb.Looping, IsLooped);
-			// Pitch
-			AL.Source (sourceId, ALSourcef.Pitch, XnaPitchToAlPitch(_pitch));
+            ApplyState();
 
             controller.PlaySound (soundBuffer);
             //Console.WriteLine ("playing: " + sourceId + " : " + soundEffect.Name);

@@ -4,7 +4,7 @@ using System.Linq;
 using System.IO;
 using System.Runtime.InteropServices;
 
-#if IOS || WINDOWS || LINUX || ANGLE
+#if IOS || WINDOWS || LINUX
 using OpenTK.Audio.OpenAL;
 using OpenTK;
 #elif MONOMAC
@@ -113,6 +113,7 @@ namespace Microsoft.Xna.Framework.Audio
 					_instance = new OpenALSoundController ();
 				return _instance;
 			}
+
 		}
 
         public static void DestroyInstance()
@@ -123,7 +124,6 @@ namespace Microsoft.Xna.Framework.Audio
                 _instance = null;
             }
         }
-
 
         /// <summary>
         /// Checks the error state of the OpenAL driver. If a value that is not AlcError.NoError
@@ -223,6 +223,7 @@ namespace Microsoft.Xna.Framework.Audio
                 playingSourcesCollection.Add (soundBuffer);
             }
 			AL.SourcePlay (soundBuffer.SourceId);
+            CheckALError(String.Format("could not play source '{0}'", soundBuffer.SourceId));
 		}
 
 		public void StopSound (OALSoundBuffer soundBuffer)

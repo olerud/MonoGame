@@ -10,7 +10,7 @@ namespace Microsoft.Xna.Framework.Audio
     /// <remarks>
     /// <para>SoundEffectInstances are created through SoundEffect.CreateInstance() and used internally by SoundEffect.Play()</para>
     /// </remarks>
-    public sealed partial class SoundEffectInstance : IDisposable
+    public partial class SoundEffectInstance : IDisposable
     {
         private bool isDisposed = false;
 
@@ -22,7 +22,7 @@ namespace Microsoft.Xna.Framework.Audio
 
         /// <summary>Enables or Disables whether the SoundEffectInstance should repeat after playback.</summary>
         /// <remarks>This value has no effect on an already playing sound.</remarks>
-        public bool IsLooped
+        public virtual bool IsLooped
         { 
             get { return PlatformGetIsLooped(); }
             set { PlatformSetIsLooped(value); }
@@ -115,14 +115,14 @@ namespace Microsoft.Xna.Framework.Audio
 
         /// <summary>Pauses playback of a SoundEffectInstance.</summary>
         /// <remarks>Paused instances can be resumed with SoundEffectInstance.Play() or SoundEffectInstance.Resume().</remarks>
-        public void Pause()
+        public virtual void Pause()
         {
             PlatformPause();
         }
 
         /// <summary>Plays or resumes a SoundEffectInstance.</summary>
         /// <remarks>Throws an exception if more sounds are playing than the platform allows.</remarks>
-        public void Play()
+        public virtual void Play()
         {
             if (State == SoundState.Playing)
                 return;
@@ -142,13 +142,13 @@ namespace Microsoft.Xna.Framework.Audio
 
         /// <summary>Resumes playback for a SoundEffectInstance.</summary>
         /// <remarks>Only has effect on a SoundEffectInstance in a paused state.</remarks>
-        public void Resume()
+        public virtual void Resume()
         {
             PlatformResume();
         }
 
         /// <summary>Immediately stops playing a SoundEffectInstance.</summary>
-        public void Stop()
+        public virtual void Stop()
         {
             PlatformStop(true);
         }
@@ -156,7 +156,7 @@ namespace Microsoft.Xna.Framework.Audio
         /// <summary>Stops playing a SoundEffectInstance, either immediately or as authored.</summary>
         /// <param name="immediate">Determined whether the sound stops immediately, or after playing its release phase and/or transitions.</param>
         /// <remarks>Stopping a sound with the immediate argument set to false will allow it to play any release phases, such as fade, before coming to a stop.</remarks>
-        public void Stop(bool immediate)
+        public virtual void Stop(bool immediate)
         {
             
             PlatformStop(immediate);

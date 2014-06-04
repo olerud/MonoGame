@@ -193,7 +193,12 @@
     <Compile Include="Audio\WaveBank.cs" />
     <Compile Include="Audio\XactClip.cs" />
     <Compile Include="Audio\XactSound.cs" />
-
+    <Compile Include="Audio\DynamicSoundEffectInstance.cs">
+      <Platforms>MacOS,WindowsGL,iOS</Platforms>
+    </Compile>
+    <Compile Include="Audio\DynamicSoundEffectInstance.OpenAL.cs">
+      <Platforms>MacOS,WindowsGL,iOS</Platforms>
+    </Compile>
 
     <!-- Microsoft.Xna.Framework.Content -->
     <Compile Include="Content\ContentExtensions.cs" />
