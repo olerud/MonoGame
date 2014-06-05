@@ -9,7 +9,7 @@ using SharpDX.Multimedia;
 
 namespace Microsoft.Xna.Framework.Audio
 {
-    public sealed partial class SoundEffectInstance : IDisposable
+    public partial class SoundEffectInstance : IDisposable
     {
         internal SourceVoice _voice;
         internal SoundEffect _effect;

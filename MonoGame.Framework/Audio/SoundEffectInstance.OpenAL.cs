@@ -225,7 +225,7 @@ namespace Microsoft.Xna.Framework.Audio
             
         }
 
-
+#if OPENAL
         private void ApplyState()
         {
             if (!hasSourceId)
@@ -247,6 +247,7 @@ namespace Microsoft.Xna.Framework.Audio
             // Pitch
             AL.Source(sourceId, ALSourcef.Pitch, XnaPitchToAlPitch(_pitch));
         }
+#endif
 
         private void PlatformPlay()
         {
