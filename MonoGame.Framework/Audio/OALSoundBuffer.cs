@@ -1,6 +1,6 @@
 using System;
 
-#if IOS || WINDOWS || LINUX
+#if IOS || WINDOWS || LINUX || ANGLE
 using OpenTK.Audio.OpenAL;
 #elif MONOMAC
 using MonoMac.OpenAL;
@@ -12,27 +12,39 @@ namespace Microsoft.Xna.Framework.Audio
 	internal class OALSoundBuffer : IDisposable
 	{
 		int openALDataBuffer;
-		protected ALFormat openALFormat { get; set; }
+		ALFormat openALFormat;
 		int dataSize;
-		protected int sampleRate { get; set; }
-		protected int _sourceId { get; set; }
+		int sampleRate;
+		private int _sourceId;
+        bool _isDisposed;
 
 		public OALSoundBuffer ()
 		{
-			ALError alError;
-			
-			alError = AL.GetError ();
-			AL.GenBuffers (1, out openALDataBuffer);
-			alError = AL.GetError ();
-			if (alError != ALError.NoError) {
-				Console.WriteLine ("Failed to generate OpenAL data buffer: ", AL.GetErrorString (alError));
-			}
+            try
+            {
+                var alError = AL.GetError();
+                AL.GenBuffers(1, out openALDataBuffer);
+                alError = AL.GetError();
+                if (alError != ALError.NoError)
+                {
+                    Console.WriteLine("Failed to generate OpenAL data buffer: ", AL.GetErrorString(alError));
+                }
+            }
+            catch (DllNotFoundException e)
+            {
+                throw new NoAudioHardwareException("OpenAL drivers could not be found.", e);
+            }
 		}
 
         public OALSoundBuffer (int bufferId, int sourceId)
         {
             openALDataBuffer = bufferId;
             SourceId = sourceId;
+        }
+
+		~OALSoundBuffer()
+        {
+            Dispose(false);
         }
 
 		public int OpenALDataBuffer {
@@ -46,12 +58,12 @@ namespace Microsoft.Xna.Framework.Audio
 			set;
 		}
 
-        public void BindDataBuffer (byte [] dataBuffer, ALFormat format, int size, int sampleRate)
+        public void BindDataBuffer(byte[] dataBuffer, ALFormat format, int size, int sampleRate)
         {
             openALFormat = format;
             dataSize = size;
             this.sampleRate = sampleRate;
-            AL.BufferData (openALDataBuffer, openALFormat, dataBuffer, dataSize, this.sampleRate);
+            AL.BufferData(openALDataBuffer, openALFormat, dataBuffer, dataSize, this.sampleRate);
             ALError alError = AL.GetError ();
             if (alError != ALError.NoError) {
                 Console.WriteLine("failed to fill OpenAL buffer: " + AL.GetErrorString(alError));
@@ -85,17 +97,29 @@ namespace Microsoft.Xna.Framework.Audio
 
         }
 
-		public void Dispose ()
+		public void Dispose()
 		{
-			CleanUpBuffer ();
+            Dispose(true);
+            GC.SuppressFinalize(this);
 		}
 
-		public void CleanUpBuffer ()
-		{
-			if (AL.IsBuffer (openALDataBuffer)) {
-				AL.DeleteBuffers (1, ref openALDataBuffer);
-			}
-		}
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!_isDisposed)
+            {
+                if (disposing)
+                {
+                    // Clean up managed objects
+                }
+                // Release unmanaged resources
+                if (AL.IsBuffer(openALDataBuffer))
+                {
+                    AL.DeleteBuffers(1, ref openALDataBuffer);
+                }
+
+                _isDisposed = true;
+            }
+        }
 
 		public int SourceId
 		{
@@ -123,4 +147,3 @@ namespace Microsoft.Xna.Framework.Audio
 		#endregion
 	}
 }
-

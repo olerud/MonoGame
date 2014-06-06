@@ -170,11 +170,11 @@
     <Compile Include="Audio\SoundBank.cs" />
     <Compile Include="Audio\SoundEffect.cs" />
     <Compile Include="Audio\SoundEffect.OpenAL.cs">
-      <Platforms>Android,Angle,iOS,Ouya,Linux,WindowsGL,MacOS</Platforms>
+      <Platforms>Angle,iOS,Linux,WindowsGL,MacOS</Platforms>
     </Compile>
     <Compile Include="Audio\SoundEffectInstance.cs" />
     <Compile Include="Audio\SoundEffectInstance.OpenAL.cs">
-      <Platforms>Android,Angle,iOS,Ouya,Linux,WindowsGL,MacOS</Platforms>
+      <Platforms>Angle,iOS,Linux,WindowsGL,MacOS</Platforms>
     </Compile>
     <Compile Include="Audio\SoundEffectInstancePool.cs" />
     <Compile Include="Audio\SoundState.cs" />

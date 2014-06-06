@@ -3,11 +3,17 @@
 // file 'LICENSE.txt', which is part of this source code package.
 
 using System;
+using System.Collections.Generic;
 
 namespace MonoGame.Tools.Pipeline
 {
     interface IController
     {
+        /// <summary>
+        /// Types of content which can be created and added to a project. 
+        /// </summary>
+        IEnumerable<ContentItemTemplate> Templates { get; }
+
         /// <summary>
         /// True if there is a project.
         /// </summary>
@@ -22,6 +28,11 @@ namespace MonoGame.Tools.Pipeline
         /// True if the project is actively building.
         /// </summary>
         bool ProjectBuilding { get; }
+
+        /// <summary>
+        /// Passes /launchdebugger option when launching MGCB.
+        /// </summary>
+        bool LaunchDebugger { get; set; }
 
         /// <summary>
         /// Triggered when the project starts loading.
@@ -72,7 +83,7 @@ namespace MonoGame.Tools.Pipeline
         
         void Build(bool rebuild);
 
-        void RebuildItem(IProjectItem item);
+        void RebuildItems(IEnumerable<IProjectItem> items);
 
         void Clean();
 
@@ -80,8 +91,26 @@ namespace MonoGame.Tools.Pipeline
 
         bool Exit();
 
+        #region ContentItem
+
         void Include(string initialDirectory);
 
-        void Exclude(ContentItem item);        
+        void Exclude(IEnumerable<ContentItem> items);        
+
+        void NewItem(string name, string location, ContentItemTemplate template);
+
+        #endregion
+
+        #region Undo, Redo
+
+        bool CanRedo { get; }
+
+        bool CanUndo { get; }
+
+        void Undo();
+
+        void Redo();
+
+        #endregion
     }
 }
