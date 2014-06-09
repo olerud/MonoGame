@@ -93,10 +93,11 @@ namespace Microsoft.Xna.Framework.Media
                 MsMediaPlayer.IsMuted = _isMuted;
             else
             {
-            Threading.BlockOnUIThread(() =>
-                {
-                    _mediaElement.IsMuted = _isMuted;
-                });
+                Threading.BlockOnUIThread(() =>
+                    {
+                        _mediaElement.IsMuted = _isMuted;
+                    });
+            }
         }
 
 
