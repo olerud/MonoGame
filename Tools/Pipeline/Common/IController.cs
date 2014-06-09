@@ -75,6 +75,8 @@ namespace MonoGame.Tools.Pipeline
 
         void OpenProject();
 
+        void OpenProject(string projectFilePath);
+
         void CloseProject();
 
         bool SaveProject(bool saveAs);
@@ -99,9 +101,15 @@ namespace MonoGame.Tools.Pipeline
 
         void NewItem(string name, string location, ContentItemTemplate template);
 
+        void AddAction(IProjectAction action);
+
+        ContentItem GetItem(string sourceFile);
+
         #endregion
 
         #region Undo, Redo
+
+        event CanUndoRedoChanged OnCanUndoRedoChanged;
 
         bool CanRedo { get; }
 
@@ -111,6 +119,8 @@ namespace MonoGame.Tools.Pipeline
 
         void Redo();
 
-        #endregion
+        #endregion        
+
+        string GetFullPath(string filePath);
     }
 }

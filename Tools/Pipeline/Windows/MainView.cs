@@ -14,11 +14,15 @@ namespace MonoGame.Tools.Pipeline
 {
     partial class MainView : Form, IView, IProjectObserver
     {
+        // The project which will be opened as soon as a controller is attached.
+        // Is used when PipelineTool is launched to open a project, provided by the command line.
+        public string OpenProjectPath;
+
         private IController _controller;
         private ImageList _treeIcons;
 
         private bool _treeUpdating;
-        private bool _treeSort;
+        private bool _treeSort;        
 
         private const int ContentItemIcon = 0;
         private const int FolderOpenIcon = 1;
@@ -54,20 +58,25 @@ namespace MonoGame.Tools.Pipeline
             _treeView.BeforeExpand += TreeViewOnBeforeExpand;
             _treeView.BeforeCollapse += TreeViewOnBeforeCollapse;
             _treeView.NodeMouseClick += TreeViewOnNodeMouseClick;
+            _treeView.NodeMouseDoubleClick += TreeViewOnNodeMouseDoubleClick;
 
             _propertyGrid.PropertyValueChanged += OnPropertyGridPropertyValueChanged;
 
             Form = this;
         }
 
-        private void OnPropertyGridPropertyValueChanged(object s, PropertyValueChangedEventArgs e)
+        private void OnPropertyGridPropertyValueChanged(object s, PropertyValueChangedEventArgs args)
         {
-            if (e.ChangedItem.Label == "References")
+            if (args.ChangedItem.Label == "References")
                 _controller.OnReferencesModified();
             else
             {
                 if (_propertyGrid.SelectedObject is ContentItem)
-                    _controller.OnItemModified(_propertyGrid.SelectedObject as ContentItem);
+                {
+                    var item = _propertyGrid.SelectedObject as ContentItem;
+                    var action = new UpdateContentItemAction(this, _controller, item, args.ChangedItem.PropertyDescriptor, args.OldValue);
+                    _controller.AddAction(action);
+                }
                 else
                     _controller.OnProjectModified();
             }
@@ -101,9 +110,29 @@ namespace MonoGame.Tools.Pipeline
                         _treeNewItemMenuItem.Visible = true;
                     }
 
+                    if (node.Tag is FolderItem)
+                    {
+                        _treeOpenFileMenuItem.Visible = false;
+                    }
+                    else
+                    {
+                        _treeOpenFileMenuItem.Visible = true;
+                    }
+
                     _treeContextMenu.Show(_treeView, p);
                 }
             }
+        }
+
+        private void TreeViewOnNodeMouseDoubleClick(object sender, TreeNodeMouseClickEventArgs args)
+        {
+            // Even though we support 'Open File' as an action on the root (PipelineProject)
+            // double clicking on it toggles whether it is expanded. 
+            // So if you want to open it just use the menu.
+            if (!(args.Node.Tag is ContentItem))
+                return;
+
+            ContextMenu_OpenFile_Click(sender, args);            
         }
 
         //public event SelectionChanged OnSelectionChanged;
@@ -111,13 +140,19 @@ namespace MonoGame.Tools.Pipeline
         public void Attach(IController controller)
         {
             _controller = controller;
+            
+            var updateMenus = new Action(UpdateMenus);
+            var invokeUpdateMenus = new Action(() => Invoke(updateMenus));
 
-            // Make sure build and project trigger updates to all the menu items.
-            Action activate = delegate { this.Invoke(new MethodInvoker(UpdateMenus)); };
-            _controller.OnBuildStarted += activate;
-            _controller.OnBuildFinished += activate;
-            _controller.OnProjectLoading += activate;
-            _controller.OnProjectLoaded += activate;
+            _controller.OnBuildStarted += invokeUpdateMenus;
+            _controller.OnBuildFinished += invokeUpdateMenus;
+            _controller.OnProjectLoading += invokeUpdateMenus;
+            _controller.OnProjectLoaded += invokeUpdateMenus;
+
+            var updateUndoRedo = new CanUndoRedoChanged(UpdateUndoRedo);
+            var invokeUpdateUndoRedo = new CanUndoRedoChanged((u, r) => Invoke(updateUndoRedo, u, r));
+
+            _controller.OnCanUndoRedoChanged += invokeUpdateUndoRedo;
         }
 
         public AskResult AskSaveOrCancel()
@@ -259,6 +294,8 @@ namespace MonoGame.Tools.Pipeline
             node.ImageIndex = ContentItemIcon;
             node.SelectedImageIndex = ContentItemIcon;
 
+            _treeView.SelectedNode = node;
+
             root.Expand();
         }
 
@@ -273,12 +310,26 @@ namespace MonoGame.Tools.Pipeline
             var parent = node.Parent;
             node.Remove();
 
+            {
+                var obj = _propertyGrid.SelectedObject as ContentItem;
+                if (obj != null && obj.OriginalPath == item.OriginalPath)
+                    _propertyGrid.SelectedObject = null;
+            }
+
             // Clean up the parent nodes without children
             // and be sure not to delete the root node.
             while (parent != null && parent.Parent != null && parent.Nodes.Count == 0)
             {
                 var parentParent = parent.Parent;
+
                 parent.Remove();
+
+                {
+                    var obj = _propertyGrid.SelectedObject as ContentItem;
+                    if (obj != null && obj.OriginalPath == item.OriginalPath)
+                        _propertyGrid.SelectedObject = null;
+                }
+
                 parent = parentParent;
             }
         }
@@ -394,9 +445,13 @@ namespace MonoGame.Tools.Pipeline
                 Application.Exit();
         }
 
-        private void CloseMenuItem_Click(object sender, EventArgs e)
+        private void MainView_Load(object sender, EventArgs e)
         {
-            _controller.CloseProject();
+            if (!string.IsNullOrEmpty(OpenProjectPath))
+            {
+                _controller.OpenProject(OpenProjectPath);
+                OpenProjectPath = null;
+            }
         }
 
         private void MainView_FormClosing(object sender, FormClosingEventArgs e)
@@ -406,21 +461,36 @@ namespace MonoGame.Tools.Pipeline
                 if (!_controller.Exit())
                     e.Cancel = true;
             }
+        }        
+
+        private void OnNewProjectClick(object sender, EventArgs e)
+        {
+            _controller.NewProject();
         }
 
-        private void SaveMenuItemClick(object sender, System.EventArgs e)
+        private void OnImportProjectClick(object sender, EventArgs e)
+        {
+            _controller.ImportProject();
+        }
+
+        private void OnOpenProjectClick(object sender, System.EventArgs e)
+        {
+            _controller.OpenProject();
+        }
+
+        private void OnCloseProjectClick(object sender, EventArgs e)
+        {
+            _controller.CloseProject();
+        }
+
+        private void OnSaveProjectClick(object sender, System.EventArgs e)
         {
             _controller.SaveProject(false);
         }
 
-        private void SaveAsMenuItemClick(object sender, System.EventArgs e)
+        private void OnSaveAsProjectClick(object sender, System.EventArgs e)
         {
             _controller.SaveProject(true);
-        }
-
-        private void OpenMenuItemClick(object sender, System.EventArgs e)
-        {
-            _controller.OpenProject();
         }
 
         private void TreeViewAfterSelect(object sender, TreeViewEventArgs e)
@@ -475,12 +545,7 @@ namespace MonoGame.Tools.Pipeline
         private void CancelBuildMenuItemClick(object sender, EventArgs e)
         {
             _controller.CancelBuild();
-        }
-
-        private void ImportMenuItem_Click(object sender, EventArgs e)
-        {
-            _controller.ImportProject();
-        }
+        }        
 
         private void TreeViewOnBeforeCollapse(object sender, TreeViewCancelEventArgs e)
         {
@@ -513,9 +578,9 @@ namespace MonoGame.Tools.Pipeline
 
             // Update the state of all menu items.
 
-            _newMenuItem.Enabled = notBuilding;
-            _openMenuItem.Enabled = notBuilding;
-            _importMenuItem.Enabled = notBuilding;
+            _newProjectMenuItem.Enabled = notBuilding;
+            _openProjectMenuItem.Enabled = notBuilding;
+            _importProjectMenuItem.Enabled = notBuilding;
 
             _saveMenuItem.Enabled = projectOpenAndNotBuilding && _controller.ProjectDiry;
             _saveAsMenuItem.Enabled = projectOpenAndNotBuilding;
@@ -536,12 +601,17 @@ namespace MonoGame.Tools.Pipeline
             _cancelBuildSeparator.Visible = !notBuilding;
             _cancelBuildMenuItem.Enabled = !notBuilding;
             _cancelBuildMenuItem.Visible = !notBuilding;
-
-            _undoMenuItem.Enabled = _controller.CanUndo;
-            _redoMenuItem.Enabled = _controller.CanRedo;
+      
+            UpdateUndoRedo(_controller.CanUndo, _controller.CanRedo);
+        }
+        
+        private void UpdateUndoRedo(bool canUndo, bool canRedo)
+        {
+            _undoMenuItem.Enabled = canUndo;
+            _redoMenuItem.Enabled = canRedo;
         }
 
-        private void DeleteMenuItem_Click(object sender, EventArgs e)
+        private void OnDeleteItemClick(object sender, EventArgs e)
         {
             var items = new List<ContentItem>();
             var nodes = _treeView.SelectedNodesRecursive;
@@ -566,14 +636,14 @@ namespace MonoGame.Tools.Pipeline
             Process.Start("http://www.monogame.net/about/");
         }
 
-        private void AddMenuItemClick(object sender, EventArgs e)
+        private void OnAddItemClick(object sender, EventArgs e)
         {
             var node = _treeView.SelectedNode ?? _treeView.Nodes[0];
             var item = node.Tag as IProjectItem;
             _controller.Include(item.Location);
         }
 
-        private void NewItemMenuItemClick(object sender, System.EventArgs e)
+        private void OnNewItemClick(object sender, System.EventArgs e)
         {
             var dlg = new NewContentDialog(_controller.Templates);
             if (dlg.ShowDialog(this) == DialogResult.OK)
@@ -592,6 +662,29 @@ namespace MonoGame.Tools.Pipeline
         private void OnUndoClick(object sender, EventArgs e)
         {
             _controller.Undo();
+        }
+
+        private void ContextMenu_OpenFile_Click(object sender, EventArgs e)
+        {
+            var filePath = (_treeView.SelectedNode.Tag as IProjectItem).OriginalPath;
+            filePath = _controller.GetFullPath(filePath);
+
+            if (File.Exists(filePath))
+            {
+                Process.Start(filePath);
+            }
+        }
+
+        private void ContextMenu_OpenFileLocation_Click(object sender, EventArgs e)
+        {
+            var filePath = (_treeView.SelectedNode.Tag as IProjectItem).OriginalPath;
+            filePath = _controller.GetFullPath(filePath);
+
+            if (File.Exists(filePath) || Directory.Exists(filePath))
+            {
+                Process.Start("explorer.exe", "/select, " + filePath);
+
+            }
         }
     }
 }
