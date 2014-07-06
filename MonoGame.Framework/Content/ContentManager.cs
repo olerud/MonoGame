@@ -419,12 +419,8 @@ namespace Microsoft.Xna.Framework.Content
             }
             else if ((typeof(T) == typeof(SoundEffect)))
             {
-#if ANDROID
-                return new SoundEffect(assetName);
-#else
                 using (Stream s = TitleContainer.OpenStream(assetName))
                     return SoundEffect.FromStream(s);
-#endif
             }
 #if !WINDOWS && !OPENGL
             else if ((typeof(T) == typeof(Video)))
