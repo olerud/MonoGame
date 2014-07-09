@@ -681,15 +681,24 @@ namespace Microsoft.Xna.Framework
 			Platform.EndScreenDeviceChange(string.Empty, viewport.Width, viewport.Height);
         }
 
+		private bool m_NoSound = false;
+
         internal void DoUpdate(GameTime gameTime)
         {
             AssertNotDisposed();
             if (Platform.BeforeUpdate(gameTime))
             {
-                // Once per frame, we need to check currently 
-                // playing sounds to see if they've stopped,
-                // and return them back to the pool if so.
-                SoundEffectInstancePool.Update();
+				if (!m_NoSound) {
+					try {
+						// Once per frame, we need to check currently 
+						// playing sounds to see if they've stopped,
+						// and return them back to the pool if so.
+						SoundEffectInstancePool.Update ();
+					} catch (Exception) {
+						m_NoSound = true;
+						// TOOD: Log this somewhere
+					}
+				}
                 
                 //The TouchPanel needs to know the time for when touches arrive
                 TouchPanelState.Update(gameTime);
