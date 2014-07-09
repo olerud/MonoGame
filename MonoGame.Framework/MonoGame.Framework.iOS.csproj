@@ -155,21 +155,21 @@
     </Compile>
     <Compile Include="Audio\NoAudioHardwareException.cs" />
     <Compile Include="Audio\OALSoundBuffer.cs">
-      <Platforms>Angle,iOS,Linux,MacOS,WindowsGL</Platforms>
+      <Platforms>Angle,iOS,Linux,MacOS,WindowsGL,Android,Ouya</Platforms>
     </Compile>
     <Compile Include="Audio\OpenALSoundController.cs">
-      <Platforms>Angle,iOS,Linux,MacOS,WindowsGL</Platforms>
+      <Platforms>Angle,iOS,Linux,MacOS,WindowsGL,Android,Ouya</Platforms>
     </Compile>
     <Compile Include="Audio\OpenALSupport.cs">
       <Platforms>iOS,MacOS</Platforms>
     </Compile>
     <Compile Include="Audio\SoundEffect.cs" />
     <Compile Include="Audio\SoundEffect.OpenAL.cs">
-      <Platforms>Angle,iOS,Linux,WindowsGL,MacOS</Platforms>
+      <Platforms>Angle,iOS,Linux,WindowsGL,MacOS,Android,Ouya</Platforms>
     </Compile>
     <Compile Include="Audio\SoundEffectInstance.cs" />
     <Compile Include="Audio\SoundEffectInstance.OpenAL.cs">
-      <Platforms>Angle,iOS,Linux,WindowsGL,MacOS</Platforms>
+      <Platforms>Angle,iOS,Linux,WindowsGL,MacOS,Android,Ouya</Platforms>
     </Compile>
     <Compile Include="Audio\SoundEffectInstancePool.cs" />
     <Compile Include="Audio\SoundState.cs" />
@@ -621,6 +621,7 @@
       <Platforms>Android,Angle,iOS,Linux,MacOS,Ouya,WindowsGL</Platforms>
     </EmbeddedResource>
   </ItemGroup>
+  <ItemGroup />
   <ItemGroup />
   <ItemGroup />
   <ItemGroup />
