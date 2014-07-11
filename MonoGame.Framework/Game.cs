@@ -238,7 +238,7 @@ namespace Microsoft.Xna.Framework
         public static AndroidGameActivity Activity { get; internal set; }
 #endif
         private static Game _instance = null;
-        internal static Game Instance { get { return Game._instance; } }
+        public static Game Instance { get { return Game._instance; } }
 
         public LaunchParameters LaunchParameters { get; private set; }
 
@@ -556,7 +556,11 @@ namespace Microsoft.Xna.Framework
         protected virtual void BeginRun() { }
         protected virtual void EndRun() { }
 
+#if WINDOWS_PHONE
+        protected virtual async void LoadContent() { }
+#else
         protected virtual void LoadContent() { }
+#endif
         protected virtual void UnloadContent() { }
 
         protected virtual void Initialize()
@@ -688,13 +692,16 @@ namespace Microsoft.Xna.Framework
             AssertNotDisposed();
             if (Platform.BeforeUpdate(gameTime))
             {
-				if (!m_NoSound) {
+                if (!m_NoSound)
+                {
 					try {
 						// Once per frame, we need to check currently 
 						// playing sounds to see if they've stopped,
 						// and return them back to the pool if so.
-						SoundEffectInstancePool.Update ();
-					} catch (Exception) {
+                        SoundEffectInstancePool.Update();
+                    }
+                    catch (Exception)
+                    {
 						m_NoSound = true;
 						// TOOD: Log this somewhere
 					}
