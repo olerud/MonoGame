@@ -178,11 +178,15 @@ namespace Microsoft.Xna.Framework.Graphics
                     bitmapImage.SetSource(stream);
                     writableBitmap = new WriteableBitmap(bitmapImage);
             });
+            if (writableBitmap != null)
+            {
             // Convert from ARGB to ABGR 
             ConvertToABGR(writableBitmap.PixelHeight, writableBitmap.PixelWidth, writableBitmap.Pixels);
             Texture2D texture = new Texture2D(graphicsDevice, writableBitmap.PixelWidth, writableBitmap.PixelHeight, false, SurfaceFormat.Color);
             texture.SetData<int>(writableBitmap.Pixels);
             return texture;
+            }
+            return (null);
 #else
 
             // For reference this implementation was ultimately found through this post:

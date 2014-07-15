@@ -148,7 +148,12 @@ namespace Microsoft.Xna.Framework
                     action();
                     wait.Set();
                 });
-                wait.WaitOne(kMaxWaitForUIThread);
+                if (!wait.WaitOne(kMaxWaitForUIThread))
+                {
+#if DEBUG
+                    Debug.WriteLine("ERROR! action will not invoke because the current dispatcher is not UI-thread compatible.");
+#endif
+                }
             }
         }
 #endif
