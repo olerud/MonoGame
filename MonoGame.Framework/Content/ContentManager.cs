@@ -665,11 +665,16 @@ namespace Microsoft.Xna.Framework.Content
         {
             if (asset is Texture2D)
             {
-                using (Stream assetStream = TitleContainer.OpenStream(assetName))
+                Stream assetStream = TitleContainer.OpenStream(assetName);
+#if !WINDOWS_PHONE
+                using (assetStream = TitleContainer.OpenStream(assetName)) 
                 {
+#endif
                     var textureAsset = asset as Texture2D;
                     textureAsset.Reload(assetStream);
+#if !WINDOWS_PHONE
                 }
+#endif
             }
         }
 
