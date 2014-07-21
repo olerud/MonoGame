@@ -387,15 +387,26 @@ namespace Microsoft.Xna.Framework.Graphics
 #if WINDOWS_PHONE
             Threading.RunOnUIThread(() =>
             {
-                BitmapImage bitmapImage = new BitmapImage();
-                bitmapImage.SetSource(textureStream);
-                WriteableBitmap bitmap = new WriteableBitmap(bitmapImage);
+                using (textureStream)
+                {
+                    try
+                    {
+                        BitmapImage bitmapImage = new BitmapImage();
+                        bitmapImage.SetSource(textureStream);
+                        WriteableBitmap bitmap = new WriteableBitmap(bitmapImage);
 
-                // Convert from ARGB to ABGR 
-                ConvertToABGR(bitmap.PixelHeight, bitmap.PixelWidth, bitmap.Pixels);
+                        // Convert from ARGB to ABGR 
+                        ConvertToABGR(bitmap.PixelHeight, bitmap.PixelWidth, bitmap.Pixels);
 
-                this.SetData<int>(bitmap.Pixels);
-                textureStream.Dispose();
+                        this.SetData<int>(bitmap.Pixels);
+                    }
+                    catch (Exception ex)
+                    {
+                        // Ignore this here but we have to capture it so that the stream can
+                        // be disposed properly. Without this the stream will leak.
+                        System.Diagnostics.Debug.WriteLine("Failed to reload asset stream: {0}", ex);
+                    }
+                }
             });
 #endif
         }

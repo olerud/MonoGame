@@ -666,8 +666,12 @@ namespace Microsoft.Xna.Framework.Content
             if (asset is Texture2D)
             {
                 Stream assetStream = TitleContainer.OpenStream(assetName);
+				// On Windows Phone, the reload is an async process. The stream is therefore
+				// closed in the reload after it has been reloaded. The using here would
+				// cause the stream to dispose before the actual asset reload would process
+				// and thus cause an exception during app resume.
 #if !WINDOWS_PHONE
-                using (assetStream = TitleContainer.OpenStream(assetName)) 
+                using (assetStream) 
                 {
 #endif
                     var textureAsset = asset as Texture2D;
