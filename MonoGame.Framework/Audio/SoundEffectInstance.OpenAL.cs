@@ -30,6 +30,8 @@ namespace Microsoft.Xna.Framework.Audio
 			}
 		}
 		private bool _looped = false;
+		private float _alVolume = 1;
+
 		int sourceId;
 
         private OALSoundBuffer soundBuffer;
@@ -175,7 +177,7 @@ namespace Microsoft.Xna.Framework.Audio
             // Pan
             AL.Source(sourceId, ALSource3f.Position, _pan, 0, 0.1f);
             // Volume
-            AL.Source(sourceId, ALSourcef.Gain, _volume * SoundEffect.MasterVolume);
+            AL.Source(sourceId, ALSourcef.Gain, _alVolume * SoundEffect.MasterVolume);
             // Looping
             AL.Source(sourceId, ALSourceb.Looping, IsLooped);
             // Pitch
@@ -197,7 +199,6 @@ namespace Microsoft.Xna.Framework.Audio
 
             // Send the position, gain, looping, pitch, and distance model to the OpenAL driver.
             ApplyState();
-
             controller.PlaySound (soundBuffer);
             //Console.WriteLine ("playing: " + sourceId + " : " + soundEffect.Name);
             soundState = SoundState.Playing;
@@ -279,8 +280,10 @@ namespace Microsoft.Xna.Framework.Audio
 
         private void PlatformSetVolume(float value)
         {
+            _alVolume = value;
+
             if (hasSourceId)
-                AL.Source(sourceId, ALSourcef.Gain, value * SoundEffect.MasterVolume);
+                AL.Source(sourceId, ALSourcef.Gain, _alVolume);
         }
 
         private void PlatformDispose(bool disposing)
