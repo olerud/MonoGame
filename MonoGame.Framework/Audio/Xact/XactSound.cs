@@ -4,8 +4,6 @@
 
 using System;
 using System.IO;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace Microsoft.Xna.Framework.Audio
 {
@@ -39,29 +37,29 @@ namespace Microsoft.Xna.Framework.Audio
             _soundBank = soundBank;
 
 			var oldPosition = soundReader.BaseStream.Position;
-			soundReader.BaseStream.Seek (soundOffset, SeekOrigin.Begin);
+			soundReader.BaseStream.Seek(soundOffset, SeekOrigin.Begin);
 			
-			byte flags = soundReader.ReadByte ();
+			var flags = soundReader.ReadByte();
 			_complexSound = (flags & 1) != 0;
 
             _categoryID = soundReader.ReadUInt16();
             _volume = XactHelpers.ParseVolumeFromDecibels(soundReader.ReadByte());
             _pitch = soundReader.ReadInt16() / 1000.0f;
-			soundReader.ReadByte (); //unkn
-            soundReader.ReadUInt16 (); // entryLength
+			var priority = soundReader.ReadByte();
+            soundReader.ReadUInt16(); // filter stuff?
 			
 			uint numClips = 0;
 			if (_complexSound)
-				numClips = (uint)soundReader.ReadByte ();
+				numClips = soundReader.ReadByte();
 			else 
             {
-				_trackIndex = soundReader.ReadUInt16 ();
-				_waveBankIndex = soundReader.ReadByte ();
+				_trackIndex = soundReader.ReadUInt16();
+				_waveBankIndex = soundReader.ReadByte();
 			}
 			
 			if ( (flags & 0x1E) != 0 ) 
             {
-				uint extraDataLen = soundReader.ReadUInt16 ();
+				var extraDataLen = soundReader.ReadUInt16();
 				//TODO: Parse RPC+DSP stuff
 				
 				// extraDataLen - 2, we need to account for extraDataLen itself!
@@ -133,6 +131,7 @@ namespace Microsoft.Xna.Framework.Audio
                     return;
                 }
 
+                _wave.Pitch = _pitch;
                 _wave.Volume = _volume * category._volume[0];
                 _wave.Play();
 			}
@@ -303,7 +302,20 @@ namespace Microsoft.Xna.Framework.Audio
                 return _wave != null && _wave.State == SoundState.Paused;
 			}
 		}
-		
-	}
+
+        public void Apply3D(AudioListener listener, AudioEmitter emitter)
+        {
+            if (_complexSound)
+            {
+                foreach (var clip in _soundClips)
+                    clip.Apply3D(listener, emitter);
+            }
+            else
+            {
+                if (_wave != null)
+                    _wave.Apply3D(listener, emitter);
+            }
+        }
+    }
 }
 

@@ -20,6 +20,8 @@ namespace Microsoft.Xna.Framework.Audio
         
 		bool loaded = false;
 
+        public bool IsDisposed { get; private set; }
+
 		internal AudioEngine AudioEngine { get { return audioengine; } }
 		
         /// <param name="audioEngine">AudioEngine that will be associated with this sound bank.</param>
@@ -95,7 +97,9 @@ namespace Microsoft.Xna.Framework.Audio
 					waveBanks = new WaveBank[numWaveBanks];
 					for (int i=0; i<numWaveBanks; i++) {
 						string bankname = System.Text.Encoding.UTF8.GetString(soundbankreader.ReadBytes(64),0,64).Replace("\0","");
-						waveBanks[i] = audioengine.Wavebanks[bankname];
+						WaveBank bank;
+						if (audioengine.Wavebanks.TryGetValue(bankname, out bank))
+							waveBanks[i] = bank;
 					}
 					
 					//parse cue name table
@@ -238,8 +242,13 @@ namespace Microsoft.Xna.Framework.Audio
         /// </summary>
 		public void Dispose ()
 		{
+            if (IsDisposed)
+                return;
+
             foreach (var cue in cues.Values)
                 cue.Dispose();
+
+            IsDisposed = true;
 		}
 		#endregion
     }
