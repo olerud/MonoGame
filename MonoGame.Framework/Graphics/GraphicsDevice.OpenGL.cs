@@ -38,6 +38,7 @@ using RenderbufferTarget = OpenTK.Graphics.ES20.All;
 using RenderbufferStorage = OpenTK.Graphics.ES20.All;
 using PixelType = OpenTK.Graphics.ES20.All;
 using PixelFormat = OpenTK.Graphics.ES20.All;
+using GLPrimitiveType = OpenTK.Graphics.ES20.All;
 #endif
 
 
