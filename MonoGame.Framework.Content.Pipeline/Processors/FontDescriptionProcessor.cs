@@ -86,7 +86,7 @@ namespace Microsoft.Xna.Framework.Content.Pipeline.Processors
 
                 var systemBitmap = GlyphPacker.ArrangeGlyphs(glyphs, true, true);
 
-				//outputBitmap.Save ("/Users/Jimmy/Desktop/Cocos2D-XNAImages/fontglyphs.png");
+				//systemBitmap.Save ("fontglyphs.png");
 
 				// Adjust line and character spacing.
 				lineSpacing += input.Spacing;
@@ -94,8 +94,7 @@ namespace Microsoft.Xna.Framework.Content.Pipeline.Processors
 
 				foreach (var glyph in glyphs)
 				{
-					if (!output.CharacterMap.Contains(glyph.Character))
-						output.CharacterMap.Add(glyph.Character);
+                    output.CharacterMap.Add(glyph.Character);
 
 					var texRect = new Rectangle(glyph.Subrect.X, glyph.Subrect.Y, glyph.Subrect.Width, glyph.Subrect.Height);
 					output.Glyphs.Add(texRect);
@@ -110,7 +109,7 @@ namespace Microsoft.Xna.Framework.Content.Pipeline.Processors
 						output.Kerning.Add(new Vector3(0, texRect.Width, 0));
 				}
 
-                output.Texture.Faces.Add(new MipmapChain(systemBitmap.ToXnaBitmap()));
+                output.Texture.Faces.Add(new MipmapChain(systemBitmap.ToXnaBitmap(true)));
 			    systemBitmap.Dispose();
 
                 GraphicsUtil.CompressTexture(context.TargetProfile, output.Texture, context, false, true, true);

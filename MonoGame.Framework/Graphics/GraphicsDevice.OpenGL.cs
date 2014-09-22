@@ -36,6 +36,8 @@ using FramebufferTarget = OpenTK.Graphics.ES20.All;
 using FramebufferAttachment = OpenTK.Graphics.ES20.All;
 using RenderbufferTarget = OpenTK.Graphics.ES20.All;
 using RenderbufferStorage = OpenTK.Graphics.ES20.All;
+using PixelType = OpenTK.Graphics.ES20.All;
+using PixelFormat = OpenTK.Graphics.ES20.All;
 using GLPrimitiveType = OpenTK.Graphics.ES20.All;
 #endif
 
@@ -706,7 +708,7 @@ namespace Microsoft.Xna.Framework.Graphics
 #if DEBUG
                 this.framebufferHelper.CheckFramebufferStatus();
 #endif
-                this.glFramebuffers.Add(_currentRenderTargetBindings, glFramebuffer);
+                this.glFramebuffers.Add((RenderTargetBinding[])_currentRenderTargetBindings.Clone(), glFramebuffer);
             }
             else
             {
@@ -1009,6 +1011,33 @@ namespace Microsoft.Xna.Framework.Graphics
         private static GraphicsProfile PlatformGetHighestSupportedGraphicsProfile(GraphicsDevice graphicsDevice)
         {
            return GraphicsProfile.HiDef;
+        }
+
+        private void PlatformGetBackBufferData<T>(T[] data) where T : struct
+        {
+#if MONOMAC
+            var tByteSize = Marshal.SizeOf(typeof(T));
+#endif
+#if !MONOMAC
+            var tByteSize = OpenTK.BlittableValueType.StrideOf(data);
+#endif
+
+            Debug.Assert((data.Length * tByteSize) >= (_viewport.Width * _viewport.Height * 4));
+
+            GL.ReadPixels(0, 0, _viewport.Width, _viewport.Height, PixelFormat.Rgba, PixelType.UnsignedByte, data);
+
+            //In GL this is upside down (top row is the bottom row), so loop through fixing it up
+            var rowSize = _viewport.Width * 4 / tByteSize;
+            var row = new T[rowSize];
+            for (var y = 0; y < _viewport.Height / 2; y++)
+            {
+                //Copy the top row out
+                Array.Copy(data, y * rowSize, row, 0, rowSize);
+                //Copy the bottom row over the top row
+                Array.Copy(data, (_viewport.Height - y - 1) * rowSize, data, y * rowSize, rowSize);
+                //Copy the backup over the bottom row
+                Array.Copy(row, 0, data, (_viewport.Height - y - 1) * rowSize, rowSize);
+            }
         }
     }
 }
