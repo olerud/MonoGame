@@ -88,7 +88,14 @@ namespace Microsoft.Xna.Framework
 
 		protected override void OnDestroy ()
 		{
-            UnregisterReceiver(screenReceiver);
+            try
+            {
+                UnregisterReceiver(screenReceiver);
+            }
+            catch (Exception)
+            {
+                // Can happen when the activity exits
+            }
             _orientationListener = null;
             if (Game != null)
                 Game.Dispose();
