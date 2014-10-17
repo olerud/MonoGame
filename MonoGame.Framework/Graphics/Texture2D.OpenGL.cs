@@ -235,143 +235,7 @@ namespace Microsoft.Xna.Framework.Graphics
 
         private void PlatformGetData<T>(int level, Rectangle? rect, T[] data, int startIndex, int elementCount) where T : struct
         {
-#if ANDROID || IOS
-
-            Rectangle r;
-            if (rect != null)
-            {
-                r = rect.Value;
-            }
-            else
-            {
-                r = new Rectangle(0, 0, Width, Height);
-            }
-
-			// Get the Color values
-			if (typeof(T) == typeof(uint))
-			{
-				Color[] colors = new Color[elementCount];
-				GetData<Color>(level, rect, colors, startIndex, elementCount);
-				uint[] final = data as uint[];
-				for (int i = 0; i < final.Length; i++)
-				{
-					final[i] = (uint)
-					(
-						// use correct xna byte order (and remember to convert it yourself as needed)
-						colors[i].A << 24 |
-						colors[i].B << 16 |
-						colors[i].G << 8 |
-						colors[i].R
-					);
-				}
-			}
-			// Get the Color values
-			else if (typeof(T) == typeof(int))
-			{
-				Color[] colors = new Color[elementCount];
-				GetData<Color>(level, rect, colors, startIndex, elementCount);
-				int[] final = data as int[];
-				for (int i = 0; i < final.Length; i++)
-				{
-					final[i] = (int)
-						(
-							// use correct xna byte order (and remember to convert it yourself as needed)
-							colors[i].A << 24 |
-							colors[i].B << 16 |
-							colors[i].G << 8 |
-							colors[i].R
-						);
-				}
-			}
-            // Get the Color values
-            else if ((typeof(T) == typeof(Color)))
-            {
-				byte[] imageInfo = GetTextureData(0);
-
-                int rWidth = r.Right; // r.Width;
-                int rHeight = r.Bottom; // r.Height;
-                
-                // Loop through and extract the data but we need to load it 
-                var dataRowColOffset = 0;
-                var sz = 0;
-                var pixelOffset = 0;
-                var outputElement = 0; // Write image into the output image
-                for (int y = r.Top; y < rHeight; y++)
-                {
-                    for (int x = r.Left; x < rWidth; x++)
-                    {
-                        var result = new Color(0, 0, 0, 0);
-                        dataRowColOffset = ((y * width) + x); // Read index from the source image
-                        switch (Format)
-                        {
-                            case SurfaceFormat.Color: //kTexture2DPixelFormat_RGBA8888
-                            case SurfaceFormat.Dxt3:
-                                sz = 4;
-                                pixelOffset = dataRowColOffset * sz;
-                                result.R = imageInfo[pixelOffset];
-                                result.G = imageInfo[pixelOffset + 1];
-                                result.B = imageInfo[pixelOffset + 2];
-                                result.A = imageInfo[pixelOffset + 3];
-                                break;
-                            case SurfaceFormat.Bgra4444: //kTexture2DPixelFormat_RGBA4444
-                                //								sz = 2;
-                                //								pos = ((y * imageSize.Width) + x) * sz;
-                                //								pixelOffset = new IntPtr (imageData.ToInt64 () + pos);
-                                //	
-                                //								Marshal.Copy (pixelOffset, pixel, 0, 4);	
-                                //	
-                                //								result.R = pixel [0];
-                                //								result.G = pixel [1];
-                                //								result.B = pixel [2];
-                                //								result.A = pixel [3];
-                                sz = 2;
-                                pixelOffset = dataRowColOffset * sz;
-                                result.R = imageInfo[pixelOffset];
-                                result.G = imageInfo[pixelOffset + 1];
-                                result.B = imageInfo[pixelOffset + 2];
-                                result.A = imageInfo[pixelOffset + 3];
-                                break;
-                            case SurfaceFormat.Bgra5551: //kTexture2DPixelFormat_RGB5A1
-                                //								sz = 2;
-                                //								pos = ((y * imageSize.Width) + x) * sz;
-                                //								pixelOffset = new IntPtr (imageData.ToInt64 () + pos);
-                                //								Marshal.Copy (pixelOffset, pixel, 0, 4);	
-                                //	
-                                //								result.R = pixel [0];
-                                //								result.G = pixel [1];
-                                //								result.B = pixel [2];
-                                //								result.A = pixel [3];
-                                sz = 2;
-                                pixelOffset = dataRowColOffset * sz;
-                                result.R = imageInfo[pixelOffset];
-                                result.G = imageInfo[pixelOffset + 1];
-                                result.B = imageInfo[pixelOffset + 2];
-                                result.A = imageInfo[pixelOffset + 3];
-                                break;
-                            case SurfaceFormat.Alpha8:  // kTexture2DPixelFormat_A8 
-                                //								sz = 1;
-                                //								pos = ((y * imageSize.Width) + x) * sz;
-                                //								pixelOffset = new IntPtr (imageData.ToInt64 () + pos);								
-                                //								Marshal.Copy (pixelOffset, pixel, 0, 4);	
-                                //	
-                                //								result.A = pixel [0];
-                                sz = 1;
-                                pixelOffset = dataRowColOffset * sz;
-                                result.A = imageInfo[pixelOffset];
-                                break;
-                            default:
-                                throw new NotSupportedException("Texture format");
-                        }
-                        data[outputElement++] = (T)(object)result;
-                    }                    
-                }
-            }
-            else
-            {
-                throw new NotImplementedException("GetData not implemented for type.");
-            }
-
-#elif GLES
+#if GLES
             // TODO: check for data size and for non renderable formats (formats that can't be attached to FBO)
 
             var framebufferId = 0;
@@ -428,6 +292,7 @@ namespace Microsoft.Xna.Framework.Graphics
                 }
             }
 #endif
+
         }
 
         private static Texture2D PlatformFromStream(GraphicsDevice graphicsDevice, Stream stream)

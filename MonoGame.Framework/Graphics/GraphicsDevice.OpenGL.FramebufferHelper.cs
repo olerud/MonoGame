@@ -271,7 +271,11 @@ namespace Microsoft.Xna.Framework.Graphics
 
             internal FramebufferHelper(GraphicsDevice graphicsDevice)
             {
+#if !MONOMAC
                 this.SupportsBlitFramebuffer = true;
+#else
+                this.SupportsBlitFramebuffer = false;
+#endif
                 this.SupportsInvalidateFramebuffer = false;
             }
 
