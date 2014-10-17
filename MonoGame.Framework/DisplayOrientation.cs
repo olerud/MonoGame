@@ -14,7 +14,8 @@ namespace Microsoft.Xna.Framework
         LandscapeRight = 2,
         Portrait = 4,
         PortraitDown = 8,
-        Unknown = 16
+        Unknown = 16,
+			All = LandscapeLeft | LandscapeRight | Portrait | PortraitDown
     }
 }
 
