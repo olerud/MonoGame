@@ -19,7 +19,7 @@ namespace Microsoft.Xna.Framework
             if (platform == null)
                 throw new ArgumentNullException("platform");
             _platform = platform;
-            SupportedOrientations = DisplayOrientation.Default;
+            SupportedOrientations = DisplayOrientation.All;
         }
 
         public event EventHandler<EventArgs> InterfaceOrientationChanged;
@@ -75,7 +75,7 @@ namespace Microsoft.Xna.Framework
 
         public override bool ShouldAutorotate()
         {
-            return _platform.Game.Initialized;
+            return true;
         }
         #endregion
 

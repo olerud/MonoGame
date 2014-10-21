@@ -225,7 +225,15 @@ namespace Microsoft.Xna.Framework
             Game.Tick ();
 
             if (!IsPlayingVideo)
+            {
+                if (Game.GraphicsDevice != null)
+                {
+                    // GraphicsDevice.Present() takes care of actually 
+                    // disposing resources disposed from a non-ui thread
+                    Game.GraphicsDevice.Present();
+                }
                 _viewController.View.Present ();
+            }
         }
 
         public override bool BeforeDraw(GameTime gameTime)
@@ -326,7 +334,6 @@ namespace Microsoft.Xna.Framework
         {
             // FIXME: Possibly add some more sophisticated behavior here.  It's
             //        also possible that this is not iOSGamePlatform's job.
-            GC.Collect();
         }
 
         #endregion Notification Handling
